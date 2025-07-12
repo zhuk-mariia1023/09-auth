@@ -1,70 +1,72 @@
 import { cookies } from 'next/headers';
+import { nextApi } from './api';
 import type { Note } from '@/types/note';
 import type { User } from '@/types/user';
 
-const BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}/api`;
-
-// Перевірка сесії
-export const getSession = async (): Promise<User | null> => {
-  const res = await fetch(`${BASE_URL}/auth/session`, {
-    headers: {
-      Cookie: cookies().toString(),
-    },
-    cache: 'no-store',
-  });
-
-  if (!res.ok) return null;
-  return res.json();
-};
-
-// Отримати поточний профіль
-export const getUserProfile = async (): Promise<User> => {
-  const res = await fetch(`${BASE_URL}/users/me`, {
-    headers: {
-      Cookie: cookies().toString(),
-    },
-    cache: 'no-store',
-  });
-
-  if (!res.ok) throw new Error('Failed to fetch user profile');
-  return res.json();
-};
-
-// Отримати одну нотатку
-export const fetchNoteById = async (id: number): Promise<Note> => {
-  const res = await fetch(`${BASE_URL}/notes/${id}`, {
-    headers: {
-      Cookie: cookies().toString(),
-    },
-    cache: 'no-store',
-  });
-
-  if (!res.ok) throw new Error('Failed to fetch note');
-  return res.json();
-};
-
-// Отримати список нотаток
+// Отримання списку нотаток (SSR)
 export const fetchNotes = async (
+  cookie: string,
   page: number,
   search = '',
   tag?: string,
   perPage = 12
 ): Promise<{ notes: Note[]; totalPages: number }> => {
-  const params = new URLSearchParams({
-    page: String(page),
-    perPage: String(perPage),
+  const params: Record<string, string | number> = { page, perPage };
+
+  if (search.trim()) params.search = search.trim();
+  if (tag && tag !== 'all') params.tag = tag;
+
+  const response = await nextApi.get<{ notes: Note[]; totalPages: number }>(
+    '/notes',
+    {
+      params,
+      headers: { Cookie: cookie },
+    }
+  );
+
+  return response.data;
+};
+
+// Отримання однієї нотатки (SSR)
+export const fetchNoteById = async (
+  id: number,
+  cookie: string
+): Promise<Note> => {
+  const response = await nextApi.get<Note>(`/notes/${id}`, {
+    headers: { Cookie: cookie },
   });
+  return response.data;
+};
 
-  if (search.trim()) params.set('search', search.trim());
-  if (tag && tag !== 'all') params.set('tag', tag);
-
-  const res = await fetch(`${BASE_URL}/notes?${params.toString()}`, {
+// Отримання профілю користувача (SSR)
+export const getServerMe = async (): Promise<User> => {
+  const cookieStore = cookies();
+  const { data } = await nextApi.get('/auth/me', {
     headers: {
-      Cookie: cookies().toString(),
+      Cookie: cookieStore.toString(),
     },
-    cache: 'no-store',
   });
+  return data;
+};
 
-  if (!res.ok) throw new Error('Failed to fetch notes');
-  return res.json();
+// Оновлення профілю користувача (SSR)
+export const updateUser = async (
+  cookie: string,
+  data: Partial<User>
+): Promise<User> => {
+  const response = await nextApi.patch<User>('/users/me', data, {
+    headers: { Cookie: cookie },
+  });
+  return response.data;
+};
+
+// Серверна перевірка сесії
+export const checkServerSession = async () => {
+  const cookieStore = cookies();
+  const response = await nextApi.get('/auth/session', {
+    headers: {
+      Cookie: cookieStore.toString(),
+    },
+  });
+  return response;
 };

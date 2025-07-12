@@ -3,3 +3,13 @@ export interface User {
   email: string;
   avatar: string;
 }
+
+export interface RegisterRequest {
+  email: string;
+  password: string;
+}
+
+export type LoginRequest = {
+  email: string;
+  password: string;
+};

@@ -1,54 +1,52 @@
 'use client';
 
 import Link from 'next/link';
-import { useAuthStore } from '@/store/authStore';
-import css from './AuthNavigation.module.css';
+import { useRouter } from 'next/navigation';
+import { useAuthStore } from '@/lib/store/authStore';
+import { apiLogout } from '@/lib/api/clientApi';
 
-export default function AuthNavigation() {
-  const { user, logout } = useAuthStore();
+const AuthNavigation = () => {
+  const router = useRouter();
+
+  const { isAuthenticated } = useAuthStore();
+
+  const clearIsAuthenticated = useAuthStore(
+    state => state.clearIsAuthenticated
+  );
+
+  const handleLogout = async () => {
+    try {
+      await apiLogout();
+      clearIsAuthenticated();
+      router.push('/sign-in');
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+  };
 
   return (
     <>
-      {user ? (
+      {!isAuthenticated ? (
         <>
-          <li className={css.navigationItem}>
-            <Link
-              href="/profile"
-              prefetch={false}
-              className={css.navigationLink}
-            >
-              Profile
-            </Link>
+          <li>
+            <Link href="/sign-up">Register</Link>
           </li>
-          <li className={css.navigationItem}>
-            <p className={css.userEmail}>{user.email}</p>
-            <button className={css.logoutButton} onClick={logout}>
-              Logout
-            </button>
+          <li>
+            <Link href="/sign-in">Login</Link>
           </li>
         </>
       ) : (
         <>
-          <li className={css.navigationItem}>
-            <Link
-              href="/sign-in"
-              prefetch={false}
-              className={css.navigationLink}
-            >
-              Login
-            </Link>
+          <li>
+            <Link href="/profile">Profile</Link>
           </li>
-          <li className={css.navigationItem}>
-            <Link
-              href="/sign-up"
-              prefetch={false}
-              className={css.navigationLink}
-            >
-              Sign up
-            </Link>
+          <li>
+            <button onClick={handleLogout}>Logout</button>
           </li>
         </>
       )}
     </>
   );
-}
+};
+
+export default AuthNavigation;

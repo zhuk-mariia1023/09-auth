@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
+import Image from 'next/image';
 import css from './ProfilePage.module.css';
-import { useAuthStore } from '@/store/authStore';
+import { getServerMe } from '@/lib/api/serverApi';
 
 export const metadata: Metadata = {
   title: 'User Profile | NoteHub',
@@ -21,8 +22,8 @@ export const metadata: Metadata = {
   },
 };
 
-export default function ProfilePage() {
-  const { user } = useAuthStore();
+const ProfilePage = async () => {
+  const user = await getServerMe();
 
   return (
     <main className={css.mainContent}>
@@ -35,7 +36,7 @@ export default function ProfilePage() {
         </div>
 
         <div className={css.avatarWrapper}>
-          <img
+          <Image
             src="Avatar"
             alt="User Avatar"
             width={120}
@@ -45,10 +46,12 @@ export default function ProfilePage() {
         </div>
 
         <div className={css.profileInfo}>
-          <p>Username: {user?.username || 'your_username'}</p>
-          <p>Email: {user?.email || 'your_email@example.com'}</p>
+          <p>Username: {user.username}</p>
+          <p>Email: {user.email}</p>
         </div>
       </div>
     </main>
   );
-}
+};
+
+export default ProfilePage;
