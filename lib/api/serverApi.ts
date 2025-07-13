@@ -1,47 +1,55 @@
 import { cookies } from 'next/headers';
 import { nextApi } from './api';
-import type { Note } from '@/types/note';
 import type { User } from '@/types/user';
+import type { Note } from '@/types/note';
 
-// Отримання списку нотаток (SSR)
-export const fetchNotes = async (
-  cookie: string,
+type ServerNotesResponse = {
+  notes: Note[];
+  totalPages: number;
+};
+
+// Отримання списку нотаток з авторизацією (SSR)
+export const fetchNotesServer = async (
   page: number,
   search = '',
   tag?: string,
   perPage = 12
-): Promise<{ notes: Note[]; totalPages: number }> => {
-  const params: Record<string, string | number> = { page, perPage };
+): Promise<ServerNotesResponse> => {
+  const params: Record<string, string | number> = {
+    page,
+    perPage,
+  };
 
   if (search.trim()) params.search = search.trim();
   if (tag && tag !== 'all') params.tag = tag;
 
-  const response = await nextApi.get<{ notes: Note[]; totalPages: number }>(
-    '/notes',
-    {
-      params,
-      headers: { Cookie: cookie },
-    }
-  );
+  const cookieStore = cookies();
+  const response = await nextApi.get<ServerNotesResponse>('/notes', {
+    params,
+    headers: {
+      Cookie: cookieStore.toString(),
+    },
+  });
 
   return response.data;
 };
 
-// Отримання однієї нотатки (SSR)
-export const fetchNoteById = async (
-  id: number,
-  cookie: string
-): Promise<Note> => {
+// Отримання окремої нотатки по ID (SSR)
+export const fetchNoteByIdServer = async (id: number): Promise<Note> => {
+  const cookieStore = cookies();
   const response = await nextApi.get<Note>(`/notes/${id}`, {
-    headers: { Cookie: cookie },
+    headers: {
+      Cookie: cookieStore.toString(),
+    },
   });
+
   return response.data;
 };
 
 // Отримання профілю користувача (SSR)
 export const getServerMe = async (): Promise<User> => {
   const cookieStore = cookies();
-  const { data } = await nextApi.get('/auth/me', {
+  const { data } = await nextApi.get('/users/me', {
     headers: {
       Cookie: cookieStore.toString(),
     },

@@ -17,6 +17,7 @@ const SignUpPage = () => {
       const payload: RegisterRequest = {
         email: formData.get('email') as string,
         password: formData.get('password') as string,
+        userName: formData.get('userName') as string,
       };
 
       const user = await apiRegister(payload);

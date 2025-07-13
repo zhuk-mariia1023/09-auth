@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { fetchNoteById } from '@/lib/api/api';
+import { fetchNoteByIdServer } from '@/lib/api/serverApi';
 import NoteDetailsClient from './NoteDetails.client';
 import {
   dehydrate,
@@ -15,7 +15,7 @@ export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
   const { id } = await params;
-  const note = await fetchNoteById(Number(id));
+  const note = await fetchNoteByIdServer(Number(id));
 
   const title = note?.title ?? 'Note not found';
   const description =
@@ -49,7 +49,7 @@ export default async function NoteDetails({ params }: PageProps) {
 
   await queryClient.prefetchQuery({
     queryKey: ['note', id],
-    queryFn: () => fetchNoteById(Number(id)),
+    queryFn: () => fetchNoteByIdServer(Number(id)),
   });
 
   return (
