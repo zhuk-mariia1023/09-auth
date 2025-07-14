@@ -26,6 +26,7 @@ const Header = () => {
           <li>
             <TagsMenu tags={staticTags} />
           </li>
+
           <AuthNavigation />
         </ul>
       </nav>

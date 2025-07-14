@@ -4,47 +4,51 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/lib/store/authStore';
 import { apiLogout } from '@/lib/api';
+import css from './AuthNavigation.module.css';
 
 const AuthNavigation = () => {
   const router = useRouter();
 
-  const { isAuthenticated } = useAuthStore();
+  const { isAuthenticated, user } = useAuthStore();
 
   const clearIsAuthenticated = useAuthStore(
     state => state.clearIsAuthenticated
   );
 
   const handleLogout = async () => {
-    try {
-      await apiLogout();
-      clearIsAuthenticated();
-      router.push('/sign-in');
-    } catch (error) {
-      console.error('Logout error:', error);
-    }
+    await apiLogout();
+
+    clearIsAuthenticated();
+
+    router.push('/sign-in');
   };
 
-  return (
+  return isAuthenticated ? (
     <>
-      {!isAuthenticated ? (
-        <>
-          <li>
-            <Link href="/sign-up">Register</Link>
-          </li>
-          <li>
-            <Link href="/sign-in">Login</Link>
-          </li>
-        </>
-      ) : (
-        <>
-          <li>
-            <Link href="/profile">Profile</Link>
-          </li>
-          <li>
-            <button onClick={handleLogout}>Logout</button>
-          </li>
-        </>
-      )}
+      <li className={css.navigationItem}>
+        <Link href="/profile" className={css.navigationLink}>
+          Profile
+        </Link>
+      </li>
+      <li className={css.navigationItem}>
+        <p className={css.userEmail}>{user?.username}</p>
+        <button onClick={handleLogout} className={css.logoutButton}>
+          Logout
+        </button>
+      </li>
+    </>
+  ) : (
+    <>
+      <li className={css.navigationItem}>
+        <Link href="/sign-in" className={css.navigationLink}>
+          Login
+        </Link>
+      </li>
+      <li className={css.navigationItem}>
+        <Link href="/sign-up" className={css.navigationLink}>
+          Sign up
+        </Link>
+      </li>
     </>
   );
 };

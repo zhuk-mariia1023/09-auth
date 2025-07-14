@@ -1,15 +1,15 @@
 import type { Metadata } from 'next';
-import { fetchNotesServer } from '@/lib/api/serverApi';
+import { fetchNotesSSR } from '@/lib/api/serverApi';
 import NotesClient from './Notes.client';
 
 type NotesFilterPageProps = {
-  params: { slug: string[] };
+  params: Promise<{ slug: string[] }>;
 };
 
 export async function generateMetadata({
   params,
 }: NotesFilterPageProps): Promise<Metadata> {
-  const { slug } = params;
+  const { slug } = await params;
   const tagParam = slug[0]?.toLowerCase();
 
   const tag = tagParam === 'all' ? 'All notes' : `Notes with tag "${slug[0]}"`;
@@ -45,11 +45,11 @@ export async function generateMetadata({
 export default async function NotesFilterPage({
   params,
 }: NotesFilterPageProps) {
-  const { slug } = params;
+  const { slug } = await params;
   const tagParam = slug[0]?.toLowerCase();
   const tag = tagParam === 'all' ? undefined : slug[0];
 
-  const notesResponse = await fetchNotesServer(1, '', tag);
+  const notesResponse = await fetchNotesSSR(1, '', tag);
 
   return <NotesClient initialData={notesResponse} filterTag={tag} />;
 }

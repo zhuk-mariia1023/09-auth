@@ -7,7 +7,6 @@ export interface User {
 export interface RegisterRequest {
   email: string;
   password: string;
-  userName: string;
 }
 
 export type LoginRequest = {
