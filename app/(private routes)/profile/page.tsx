@@ -10,7 +10,7 @@ export const metadata: Metadata = {
     title: 'User Profile | NoteHub',
     description: 'Access your NoteHub user profile and manage your data.',
     type: 'website',
-    url: 'https://your-site-url.com/profile',
+    url: 'https://09-auth-ruddy.vercel.app/profile',
     images: [
       {
         url: '/default-avatar.png',
