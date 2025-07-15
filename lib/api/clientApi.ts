@@ -46,14 +46,14 @@ export const deleteNote = async (id: string): Promise<Note> => {
 };
 
 // Перевірка сесії
-export const checkSession = async (): Promise<boolean> => {
+export const checkSession = async () => {
   const response = await nextApi.get<CheckSessionResponse>('/auth/session');
-  return response.data.success;
+  return response;
 };
 
 // Отримання користувача
 export const getMe = async (): Promise<User> => {
-  const response = await nextApi.get<User>('/auth/me');
+  const response = await nextApi.get<User>('/users/me');
   return response.data;
 };
 

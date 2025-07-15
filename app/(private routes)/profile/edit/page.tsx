@@ -58,6 +58,7 @@ const EditProfilePage = () => {
           width={120}
           height={120}
           className={css.avatar}
+          priority
         />
 
         <form action={handleSubmit} className={css.profileInfo}>

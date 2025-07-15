@@ -42,6 +42,7 @@ const ProfilePage = async () => {
             width={120}
             height={120}
             className={css.avatar}
+            priority
           />
         </div>
 
