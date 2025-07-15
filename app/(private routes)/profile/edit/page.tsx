@@ -1,39 +1,43 @@
 'use client';
 
-import { useState, useEffect, FormEvent } from 'react';
-import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { useAuthStore } from '@/lib/store/authStore';
-import { updateUser } from '@/lib/api/serverApi';
-import css from './EditProfile.module.css';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 
-export default function EditProfilePage() {
+import { useAuthStore } from '@/lib/store/authStore';
+import { editUser } from '@/lib/api/clientApi';
+import type { AuthUserData } from '@/types/user';
+
+import css from './EditProfilePage.module.css';
+
+const EditProfilePage = () => {
+  const user = useAuthStore(state => state.user);
+  const setUser = useAuthStore(state => state.setUser);
+  const [error, setError] = useState('');
   const router = useRouter();
 
-  const user = useAuthStore(state => state.user);
+  const handleSubmit = async (formData: FormData) => {
+    const username = String(formData.get('username')).trim();
 
-  const [username, setUsername] = useState('');
-
-  useEffect(() => {
-    if (user?.username) {
-      setUsername(user.username);
-    }
-  }, [user]);
-
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
-    if (!username.trim()) {
-      alert('Username не може бути порожнім');
+    if (!username) {
+      setError('Username is required');
       return;
     }
 
-    try {
-      await updateUser('', { username: username.trim() });
+    if (user) {
+      const updatedUser: AuthUserData = {
+        username,
+        email: user.email,
+      };
 
-      router.push('/profile');
-    } catch (error) {
-      alert('Помилка оновлення профілю');
-      console.error(error);
+      try {
+        const response = await editUser(updatedUser);
+        setUser(response);
+        router.push('/profile');
+      } catch (err) {
+        console.error('Error updating profile:', err);
+        setError('Failed to update profile. Please try again.');
+      }
     }
   };
 
@@ -41,9 +45,7 @@ export default function EditProfilePage() {
     router.push('/profile');
   };
 
-  if (!user) {
-    return <div>Loading...</div>;
-  }
+  if (!user) return <div>Loading...</div>;
 
   return (
     <main className={css.mainContent}>
@@ -58,15 +60,15 @@ export default function EditProfilePage() {
           className={css.avatar}
         />
 
-        <form className={css.profileInfo} onSubmit={handleSubmit}>
+        <form action={handleSubmit} className={css.profileInfo}>
           <div className={css.usernameWrapper}>
             <label htmlFor="username">Username:</label>
             <input
+              name="username"
               id="username"
               type="text"
+              defaultValue={user.username}
               className={css.input}
-              value={username}
-              onChange={e => setUsername(e.target.value)}
               required
             />
           </div>
@@ -86,7 +88,11 @@ export default function EditProfilePage() {
             </button>
           </div>
         </form>
+
+        {error && <p className={css.error}>{error}</p>}
       </div>
     </main>
   );
-}
+};
+
+export default EditProfilePage;

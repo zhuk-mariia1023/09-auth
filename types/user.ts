@@ -4,6 +4,11 @@ export interface User {
   avatar: string;
 }
 
+export interface AuthUserData {
+  username: string;
+  email: string;
+}
+
 export interface RegisterRequest {
   email: string;
   password: string;

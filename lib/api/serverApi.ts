@@ -20,19 +20,6 @@ export const getServerMe = async (): Promise<User> => {
   return response.data;
 };
 
-// SSR: Оновлення користувача
-export const updateUser = async (
-  cookie: string,
-  data: Partial<User>
-): Promise<User> => {
-  const response = await nextApi.patch<User>('/users/me', data, {
-    headers: {
-      Cookie: cookie,
-    },
-  });
-  return response.data;
-};
-
 // SSR: Перевірка сесії
 export const checkServerSession = async () => {
   const headers = await getSSRHeaders();
@@ -64,7 +51,7 @@ export const fetchNotesSSR = async (
 };
 
 // SSR: Отримати нотатку за ID
-export const fetchNoteByIdSSR = async (id: number): Promise<Note> => {
+export const fetchNoteByIdSSR = async (id: string): Promise<Note> => {
   const headers = await getSSRHeaders();
   const response = await nextApi.get<Note>(`/notes/${id}`, headers);
   return response.data;

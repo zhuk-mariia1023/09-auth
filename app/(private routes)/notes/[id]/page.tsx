@@ -15,7 +15,7 @@ export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
   const { id } = await params;
-  const note = await fetchNoteByIdSSR(Number(id));
+  const note = await fetchNoteByIdSSR(id);
 
   const title = note?.title ?? 'Note not found';
   const description =
@@ -49,7 +49,7 @@ export default async function NoteDetails({ params }: PageProps) {
 
   await queryClient.prefetchQuery({
     queryKey: ['note', id],
-    queryFn: () => fetchNoteByIdSSR(Number(id)),
+    queryFn: () => fetchNoteByIdSSR(id),
   });
 
   return (

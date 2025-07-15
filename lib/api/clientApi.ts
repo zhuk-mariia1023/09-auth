@@ -2,7 +2,12 @@
 
 import { nextApi } from './api';
 import type { Note, NewNote } from '@/types/note';
-import type { User, RegisterRequest, LoginRequest } from '@/types/user';
+import type {
+  User,
+  AuthUserData,
+  RegisterRequest,
+  LoginRequest,
+} from '@/types/user';
 
 type CheckSessionResponse = {
   success: boolean;
@@ -25,7 +30,7 @@ export const fetchNotes = async (
   return response.data;
 };
 
-export const fetchNoteById = async (id: number) => {
+export const fetchNoteById = async (id: string) => {
   const { data } = await nextApi.get<Note>(`/notes/${id}`);
   return data;
 };
@@ -35,7 +40,7 @@ export const createNote = async (data: NewNote): Promise<Note> => {
   return response.data;
 };
 
-export const deleteNote = async (id: number): Promise<Note> => {
+export const deleteNote = async (id: string): Promise<Note> => {
   const response = await nextApi.delete<Note>(`/notes/${id}`);
   return response.data;
 };
@@ -67,4 +72,9 @@ export const apiRegister = async (data: RegisterRequest): Promise<User> => {
 export const apiLogin = async (data: LoginRequest): Promise<User> => {
   const response = await nextApi.post<User>('/auth/login', data);
   return response.data;
+};
+
+export const editUser = async (user: AuthUserData): Promise<User> => {
+  const responce = await nextApi.patch<User>('/users/me', user);
+  return responce.data;
 };

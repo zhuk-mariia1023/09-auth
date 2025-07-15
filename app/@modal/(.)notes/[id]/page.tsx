@@ -16,7 +16,7 @@ export default async function Preview({ params }: PreviewProps) {
   const queryClient = new QueryClient();
   queryClient.prefetchQuery({
     queryKey: ['note', id],
-    queryFn: () => fetchNoteByIdSSR(Number(id)),
+    queryFn: () => fetchNoteByIdSSR(id),
   });
 
   return (

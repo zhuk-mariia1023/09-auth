@@ -13,7 +13,7 @@ export const metadata: Metadata = {
     url: 'https://your-site-url.com/profile',
     images: [
       {
-        url: 'https://your-site-url.com/og-image-profile.jpg',
+        url: '/default-avatar.png',
         width: 1200,
         height: 630,
         alt: 'User Profile',
@@ -37,7 +37,7 @@ const ProfilePage = async () => {
 
         <div className={css.avatarWrapper}>
           <Image
-            src="Avatar"
+            src={user.avatar || '/default-avatar.png'}
             alt="User Avatar"
             width={120}
             height={120}
