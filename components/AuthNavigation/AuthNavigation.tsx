@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { useAuthStore } from '@/lib/store/authStore';
-import { apiLogout } from '@/lib/api';
+import { apiLogout } from '@/lib/api/clientApi';
 import css from './AuthNavigation.module.css';
 
 const AuthNavigation = () => {
