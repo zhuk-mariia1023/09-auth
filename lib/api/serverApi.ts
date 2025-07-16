@@ -3,9 +3,9 @@ import { nextApi } from './api';
 import { Note } from '@/types/note';
 import { User } from '@/types/user';
 
-// Хелпер для headers з cookies
+// Helper to get cookies for SSR requests
 const getSSRHeaders = async () => {
-  const cookieStore = await cookies(); // await тут обов’язковий
+  const cookieStore = await cookies();
   return {
     headers: {
       Cookie: cookieStore.toString(),
@@ -13,21 +13,21 @@ const getSSRHeaders = async () => {
   };
 };
 
-// SSR: Отримання користувача
+// SSR: Get authenticated user
 export const getServerMe = async (): Promise<User> => {
-  const headers = await getSSRHeaders(); // потрібно чекати
+  const headers = await getSSRHeaders();
   const response = await nextApi.get<User>('/users/me', headers);
   return response.data;
 };
 
-// SSR: Перевірка сесії
+// SSR: Check user session (used in middleware)
 export const checkServerSession = async () => {
   const headers = await getSSRHeaders();
   const response = await nextApi.get('/auth/session', headers);
   return response;
 };
 
-// SSR: Отримати всі нотатки
+// SSR: Fetch all notes with optional filters
 export const fetchNotesSSR = async (
   page: number,
   search = '',
@@ -50,7 +50,7 @@ export const fetchNotesSSR = async (
   return response.data;
 };
 
-// SSR: Отримати нотатку за ID
+// SSR: Fetch single note by ID
 export const fetchNoteByIdSSR = async (id: string): Promise<Note> => {
   const headers = await getSSRHeaders();
   const response = await nextApi.get<Note>(`/notes/${id}`, headers);

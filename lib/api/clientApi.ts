@@ -13,6 +13,7 @@ type CheckSessionResponse = {
   success: boolean;
 };
 
+// Fetch all notes with optional search and tag filters
 export const fetchNotes = async (
   page: number,
   search = '',
@@ -30,51 +31,55 @@ export const fetchNotes = async (
   return response.data;
 };
 
-export const fetchNoteById = async (id: string) => {
+// Fetch a single note by ID
+export const fetchNoteById = async (id: string): Promise<Note> => {
   const { data } = await nextApi.get<Note>(`/notes/${id}`);
   return data;
 };
 
+// Create a new note
 export const createNote = async (data: NewNote): Promise<Note> => {
   const response = await nextApi.post<Note>('/notes', data);
   return response.data;
 };
 
+// Delete a note by ID
 export const deleteNote = async (id: string): Promise<Note> => {
   const response = await nextApi.delete<Note>(`/notes/${id}`);
   return response.data;
 };
 
-// Перевірка сесії
-export const checkSession = async () => {
+// Check user session
+export const checkSession = async (): Promise<boolean> => {
   const response = await nextApi.get<CheckSessionResponse>('/auth/session');
-  return response;
+  return response.data.success;
 };
 
-// Отримання користувача
+// Get authenticated user
 export const getMe = async (): Promise<User> => {
   const response = await nextApi.get<User>('/users/me');
   return response.data;
 };
 
-// Логаут
+// Logout user
 export const apiLogout = async (): Promise<void> => {
   await nextApi.post('/auth/logout');
 };
 
-// Реєстрація
+// Register new user
 export const apiRegister = async (data: RegisterRequest): Promise<User> => {
   const response = await nextApi.post<User>('/auth/register', data);
   return response.data;
 };
 
-// Логін
+// Login user
 export const apiLogin = async (data: LoginRequest): Promise<User> => {
   const response = await nextApi.post<User>('/auth/login', data);
   return response.data;
 };
 
+// Edit authenticated user's profile
 export const editUser = async (user: AuthUserData): Promise<User> => {
-  const responce = await nextApi.patch<User>('/users/me', user);
-  return responce.data;
+  const response = await nextApi.patch<User>('/users/me', user);
+  return response.data;
 };
