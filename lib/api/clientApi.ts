@@ -44,7 +44,7 @@ export const createNote = async (data: NewNote): Promise<Note> => {
 };
 
 // Delete a note by ID
-export const deleteNote = async (id: number): Promise<Note> => {
+export const deleteNote = async (id: string): Promise<Note> => {
   const response = await nextApi.delete<Note>(`/notes/${id}`);
   return response.data;
 };
