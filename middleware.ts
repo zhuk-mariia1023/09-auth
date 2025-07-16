@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { parse } from 'cookie';
-import { checkServerSession } from './lib/api/serverApi';
+import { checkServerSession } from '@/lib/api/serverApi';
 
-const privateRoutes = ['/profile', '/notes', '/notes/filter'];
+const privateRoutes = ['/profile', '/notes', '/notes/'];
 const publicRoutes = ['/sign-in', '/sign-up'];
 
 export async function middleware(request: NextRequest) {
@@ -19,6 +19,8 @@ export async function middleware(request: NextRequest) {
 
   if (!accessToken) {
     if (refreshToken) {
+      // Якщо refreshToken існує, перевіряємо сесію
+      // Якщо сесія активна, оновлюємо куки
       const data = await checkServerSession();
       const setCookie = data.headers['set-cookie'];
 
@@ -36,7 +38,8 @@ export async function middleware(request: NextRequest) {
           if (parsed.refreshToken)
             cookieStore.set('refreshToken', parsed.refreshToken, options);
         }
-
+        // Якщо refreshToken і сесія активна:
+        // для публічного маршруту — редірект на головну
         if (isPublicRoute) {
           return NextResponse.redirect(new URL('/', request.url), {
             headers: {
@@ -44,7 +47,7 @@ export async function middleware(request: NextRequest) {
             },
           });
         }
-
+        // для приватного маршруту — дозволяємо доступ
         if (isPrivateRoute) {
           return NextResponse.next({
             headers: {
@@ -54,31 +57,29 @@ export async function middleware(request: NextRequest) {
         }
       }
     }
-
+    // Якщо refreshToken або сесії немає:
+    // публічний маршрут — дозволяємо доступ
     if (isPublicRoute) {
       return NextResponse.next();
     }
 
+    // приватний маршрут — редірект на сторінку входу
     if (isPrivateRoute) {
       return NextResponse.redirect(new URL('/sign-in', request.url));
     }
   }
 
+  // Якщо accessToken існує:
+  // публічний маршрут — виконуємо редірект на головну
   if (isPublicRoute) {
     return NextResponse.redirect(new URL('/', request.url));
   }
-
+  // приватний маршрут — дозволяємо доступ
   if (isPrivateRoute) {
     return NextResponse.next();
   }
 }
 
 export const config = {
-  matcher: [
-    '/profile/:path*',
-    '/notes/:path*',
-    '/notes/filter/:path*',
-    '/sign-in',
-    '/sign-up',
-  ],
+  matcher: ['/profile/:path*', '/notes/:path*', '/sign-in', '/sign-up'],
 };
